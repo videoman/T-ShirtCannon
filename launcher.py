@@ -36,12 +36,14 @@ GPIO.setup(LED4, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(LED5, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
 
 # Setup the Inputs
-GPIO.setup(BUTTON1, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(BUTTON2, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(BUTTON1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.setup(BUTTON2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Setup a t-shirt shooting function
 valve_sleep_time=.080
+
 def fireshirt(TNUMBER):
+    	global F_TIME 
 	if (TNUMBER==1):
 		TSHIRTN=TSHIRT1
 	elif (TNUMBER==2):
@@ -52,11 +54,20 @@ def fireshirt(TNUMBER):
 		TSHIRTN=TSHIRT4
         else:
 		TSHIRTN=0
- 
-	print "Turning on valve for", valve_sleep_time, "second using pin: ", TSHIRTN
-        GPIO.output(TSHIRTN, True)
-        time.sleep(valve_sleep_time)
-        GPIO.output(TSHIRTN, False)
+
+	if(ready==1): 
+		print "Turning on valve for", valve_sleep_time, "second using pin: ", TSHIRTN
+		blink_led(TNUMBER, 3, .1)
+
+        	GPIO.output(TSHIRTN, True)
+        	time.sleep(valve_sleep_time)
+        	GPIO.output(TSHIRTN, False)
+    		F_TIME=time.time()
+
+		blink_led(TNUMBER, 6, .5)
+	else:
+		#print "Fire command requested for", THSIRTN, " but we're not ready..."
+		print('Fire button detected, but time out not yet passed: Firetime: {0} Pushtime: {1}'.format(F_TIME,time.time()))
 
 def light_led(LED_NUM):
 	if(LED_NUM==1):
@@ -83,6 +94,30 @@ def light_led(LED_NUM):
 		GPIO.output(LED2, False)	
 		GPIO.output(LED3, False)	
 		GPIO.output(LED4, True)	
+	if(LED_NUM==5):
+		print('Turning on LED PIN: %s'%LED5)
+		GPIO.output(LED5, False)	
+
+def blink_led(LED_NUM, REPS, DELAY):
+	if(LED_NUM==1):
+		LEDN=LED1
+	if(LED_NUM==2):
+		LEDN=LED2
+	if(LED_NUM==3):
+		LEDN=LED3
+	if(LED_NUM==4):
+		LEDN=LED4
+	if(LED_NUM==5):
+		LEDN=LED5
+
+	for x in range(0, REPS):
+		GPIO.output(LEDN, True)
+		time.sleep(DELAY)
+		GPIO.output(LEDN, False)
+		time.sleep(DELAY)
+	
+	GPIO.output(LEDN, True)
+		
 
 LMODE=1
 light_led(LMODE)
@@ -100,34 +135,27 @@ def my_callback_sel(BUTTON1):
     print('Setting launch mode to %s'%LMODE)
     light_led(LMODE)
 
-F_TIME=time.time()
 def my_callback_fire(BUTTON2):
-    	global F_TIME 
-    	ptime=time.time() 
-    	F_TIME2=F_TIME
-    	F_TIME2 += 4 
-	if(ptime>=F_TIME2):
-    		print('Fireing using launch mode %s'%LMODE)
-        	fireshirt(LMODE)
-    		F_TIME=time.time()
-		time.sleep(1)
+	F_TIME2 = F_TIME + 8
+	ptime=time.time()
+	if(F_TIME2<=ptime):
+		ready=1
+		print('Fireing using launch mode %s'%LMODE)
+		fireshirt(LMODE)
 	else:
-		print('Fire button detected, but time out not yet passed: Firetime: {0} Pushtime: {1}'.format(F_TIME,ptime))
+		print('Waiting for delay_time to timeout... F_TIME: {0} Current: {1}' .format(F_TIME,ptime))
+		ready=0
 
-shot_sleep=2
+GPIO.add_event_detect(BUTTON1, GPIO.FALLING, callback=my_callback_sel, bouncetime=300)
+GPIO.add_event_detect(BUTTON2, GPIO.FALLING, callback=my_callback_fire, bouncetime=1000)
 
-GPIO.add_event_detect(BUTTON1, GPIO.RISING, callback=my_callback_sel, bouncetime=300)
-GPIO.add_event_detect(BUTTON2, GPIO.RISING, callback=my_callback_fire, bouncetime=200)
+F_TIME=time.time()
+ready=1
 
 while True:
-   time.sleep(1)
-#GPIO.add_event_callback(channel, my_callback_one)
-#GPIO.add_event_callback(channel, my_callback_two)
-#	fireshirt(1)
-#	time.sleep(shot_sleep)
-#	fireshirt(2)
-#	time.sleep(shot_sleep)
-#	fireshirt(3)
-#	time.sleep(shot_sleep)
-#	fireshirt(4)
-#	time.sleep(10)
+   global ready
+   time.sleep(.1)
+   if(ready==0):
+	# Blink the status LED.
+	blink_led(5, 5, .5)
+   
