@@ -1,4 +1,9 @@
 #!/usr/bin/env python 
+# T-Shirt Launcher for Minnesota Roller Girls
+# Using a Raspberry Pi, Darlington Transistor Array, Analog inputs for PSI (code in progress),
+# and two buttoms for selecting the barrel and firing.
+
+# Copywrite David M. N. Bryan, all rights reserved.
 
 import RPi.GPIO as GPIO, time
 
@@ -9,15 +14,22 @@ TSHIRT3=18
 TSHIRT4=22
 
 # Define our LED outputs
+#LED1=2
+#LED2=3
+#LED3=14
+#LED4=15
+#LED5=24
 LED1=2
-LED2=3
-LED3=14
+LED2=14
+LED3=3
 LED4=15
 LED5=24
 
 # Define our input buttons here
-BUTTON1=27
-BUTTON2=23
+#BUTTON1=27
+#BUTTON2=23
+BUTTON1=23
+BUTTON2=27
 
 # Setup our GPIO lines
 GPIO.setmode(GPIO.BCM)
@@ -40,14 +52,16 @@ GPIO.setup(BUTTON1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(BUTTON2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Setup a t-shirt shooting function
-valve_sleep_time=.080
+valve_sleep_time=.08
 
 def fireshirt(TNUMBER):
     	global F_TIME 
+	global valve_sleep_time
 	if (TNUMBER==1):
 		TSHIRTN=TSHIRT1
 	elif (TNUMBER==2):
 		TSHIRTN=TSHIRT2
+		valve_sleep_time=.18
 	elif (TNUMBER==3):
 		TSHIRTN=TSHIRT3
 	elif (TNUMBER==4):
@@ -135,19 +149,29 @@ def my_callback_sel(BUTTON1):
     print('Setting launch mode to %s'%LMODE)
     light_led(LMODE)
 
+BUTTON2_P=0
 def my_callback_fire(BUTTON2):
-	F_TIME2 = F_TIME + 8
-	ptime=time.time()
-	if(F_TIME2<=ptime):
-		ready=1
-		print('Fireing using launch mode %s'%LMODE)
-		fireshirt(LMODE)
+	global BUTTON2_P
+	BUTTON2_P += 1
+	if(BUTTON2_P<=1):
+		F_TIME2 = F_TIME + 4
+		ptime=time.time()
+		if(F_TIME2<=ptime):
+			ready=1
+			print('Fireing using launch mode %s'%LMODE)
+			BUTTON_P=0
+			fireshirt(LMODE)
+		else:
+			print('Waiting for delay_time to timeout... F_TIME: {0} Current: {1}' .format(F_TIME,ptime))
+			ready=0
 	else:
-		print('Waiting for delay_time to timeout... F_TIME: {0} Current: {1}' .format(F_TIME,ptime))
-		ready=0
+		print('Second push detected...')
+		BUTTON2_P=0
 
-GPIO.add_event_detect(BUTTON1, GPIO.FALLING, callback=my_callback_sel, bouncetime=300)
+GPIO.add_event_detect(BUTTON1, GPIO.FALLING, callback=my_callback_sel, bouncetime=1000)
 GPIO.add_event_detect(BUTTON2, GPIO.FALLING, callback=my_callback_fire, bouncetime=1000)
+#GPIO.add_interrupt_callback(BUTTON1, my_callback_sel, edge='falling', threaded_callback=False, debounce_timeout_ms=300)
+#GPIO.add_interrupt_callback(BUTTON2, my_callback_fire, edge='falling', threaded_callback=False, debounce_timeout_ms=300)
 
 F_TIME=time.time()
 ready=1
