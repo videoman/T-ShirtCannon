@@ -26,10 +26,10 @@ LED4=15
 LED5=24
 
 # Define our input buttons here
-#BUTTON1=27
-#BUTTON2=23
-BUTTON1=23
-BUTTON2=27
+BUTTON1=27
+BUTTON2=23
+#BUTTON1=23
+#BUTTON2=27
 
 # Setup our GPIO lines
 GPIO.setmode(GPIO.BCM)
@@ -78,7 +78,7 @@ def fireshirt(TNUMBER):
         	GPIO.output(TSHIRTN, False)
     		F_TIME=time.time()
 
-		blink_led(TNUMBER, 6, .5)
+		blink_led(TNUMBER, 3, .5)
 	else:
 		#print "Fire command requested for", THSIRTN, " but we're not ready..."
 		print('Fire button detected, but time out not yet passed: Firetime: {0} Pushtime: {1}'.format(F_TIME,time.time()))
@@ -110,7 +110,7 @@ def light_led(LED_NUM):
 		GPIO.output(LED4, True)	
 	if(LED_NUM==5):
 		print('Turning on LED PIN: %s'%LED5)
-		GPIO.output(LED5, False)	
+		GPIO.output(LED5, True)	
 
 def blink_led(LED_NUM, REPS, DELAY):
 	if(LED_NUM==1):
@@ -168,18 +168,26 @@ def my_callback_fire(BUTTON2):
 		print('Second push detected...')
 		BUTTON2_P=0
 
-GPIO.add_event_detect(BUTTON1, GPIO.FALLING, callback=my_callback_sel, bouncetime=1000)
-GPIO.add_event_detect(BUTTON2, GPIO.FALLING, callback=my_callback_fire, bouncetime=1000)
-#GPIO.add_interrupt_callback(BUTTON1, my_callback_sel, edge='falling', threaded_callback=False, debounce_timeout_ms=300)
-#GPIO.add_interrupt_callback(BUTTON2, my_callback_fire, edge='falling', threaded_callback=False, debounce_timeout_ms=300)
+GPIO.add_event_detect(BUTTON1, GPIO.FALLING, callback=my_callback_sel, bouncetime=200)
+#GPIO.add_event_detect(BUTTON2, GPIO.FALLING, callback=my_callback_fire, bouncetime=1000)
 
 F_TIME=time.time()
 ready=1
 
 while True:
    global ready
-   time.sleep(.1)
+   time.sleep(.025)
    if(ready==0):
 	# Blink the status LED.
 	blink_led(5, 5, .5)
-   
+
+   # Wait to see if the Fire button is being held down... 
+   if(GPIO.input(BUTTON2) == 0):
+	  time.sleep(.30)
+	  if(GPIO.input(BUTTON2) == 0):
+	 	time.sleep(.30)
+		if(GPIO.input(BUTTON2) == 0):
+			#my_callback_fire
+			fireshirt(LMODE)
+			time.sleep(1)
+		
