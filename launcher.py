@@ -3,19 +3,25 @@
 # Using a Raspberry Pi, Darlington Transistor Array, Analog inputs for PSI (code in progress),
 # and two buttoms for selecting the barrel and firing.
 
-# Copyright David M. N. Bryan, all rights reserved.
-#
+# David M. N. Bryan
+# Attribution-NonCommercial-ShareAlike 4.0 International
 #
 
 
 import RPi.GPIO as GPIO, time 
+# I moved the pin assignment to another file for ease and so I chould share it with other programs
 from launcher_pins import *
 
 # Setup our GPIO lines
 GPIO.setmode(GPIO.BCM)
+# Turn off warnings...
 GPIO.setwarnings(False)
 
 # Output to the Darlington Driver for the 12V sprinkler valves
+# It should be noted that these pins were choosen as they are not setup as
+# on boot to be output pins.  This prevents the system from accidentdly
+# firing on boot.
+# Set the pull down resistor so it doesn't do bad things.
 GPIO.setup(TSHIRT1, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(TSHIRT2, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(TSHIRT3, GPIO.OUT, pull_up_down=GPIO.PUD_DOWN)
