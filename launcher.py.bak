@@ -3,7 +3,8 @@
 # Using a Raspberry Pi, Darlington Transistor Array, Analog inputs for PSI (code in progress),
 # and two buttoms for selecting the barrel and firing.
 
-# Copywrite David M. N. Bryan, all rights reserved.
+# David M. N. Bryan
+# Attribution-NonCommercial-ShareAlike 4.0 International
 
 import RPi.GPIO as GPIO, time
 
