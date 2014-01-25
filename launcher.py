@@ -7,10 +7,14 @@
 # Attribution-NonCommercial-ShareAlike 4.0 International
 #
 
-
-import RPi.GPIO as GPIO, time 
+import RPi.GPIO as GPIO
+import time 
+from threading import Thread
 # I moved the pin assignment to another file for ease and so I chould share it with other programs
 from launcher_pins import *
+
+# This file contains the camera functions.
+from camera_includes import *
 
 # Setup our GPIO lines
 GPIO.setmode(GPIO.BCM)
@@ -40,6 +44,22 @@ GPIO.setup(BUTTON1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 # Button 2 is Launcher PIN
 GPIO.setup(BUTTON2, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
+LMODE=0
+# This moves the barrel selection
+def increment_lmode():
+    global LMODE
+    MAX_MODES=5
+
+    # day after day, add it up!
+    LMODE += 1
+    if(LMODE<=0):
+        LMODE=1
+    elif(LMODE>=MAX_MODES):
+        LMODE=1
+    print('Setting launch mode to %s'%LMODE)
+    light_led(LMODE)
+    return(LMODE)
+
 # Setup a t-shirt shooting function
 valve_sleep_time=.08
 
@@ -64,9 +84,14 @@ def fireshirt(TNUMBER):
 		TSHIRTN=0
 
 	if(ready==1): 
+		# Take a picture in a thread.
+		camera_t = Thread(target=take_pictures, args=(60,LMODE))
+		#thread.start_new_thread(take_pictures(10))
+		camera_t.start()
+
 		print "Turning on valve for", valve_sleep_time, "second using pin: ", TSHIRTN
 		blink_led(TNUMBER, 3, .1)
-		
+
 		# Turn on the Valve
         	GPIO.output(TSHIRTN, True)
         	time.sleep(valve_sleep_time)
@@ -130,55 +155,20 @@ def blink_led(LED_NUM, REPS, DELAY):
 	
 	GPIO.output(LEDN, True)
 
-LMODE=1
-light_led(LMODE)
-MAX_MODES=5
-
-def increment_lmode():
-	global LMODE
-	# day after day, add it up!
-	LMODE += 1
-	if(LMODE<=0):
-		LMODE=1
-	elif(LMODE>=MAX_MODES):
-		LMODE=1
-    	print('Setting launch mode to %s'%LMODE)
-    	light_led(LMODE)
-
 # These answer button pushes.
 def my_callback_sel(BUTTON1):
 	increment_lmode()
 
-'''    global LMODE
-    # We have a momentary switch that we want to increment each time it's pressed, and light up LED X.
-    LMODE += 1
-    if(LMODE<=0):
-	LMODE=1
-    elif(LMODE>=MAX_MODES):
-	LMODE=1
-    print('Setting launch mode to %s'%LMODE)
-    light_led(LMODE)
-'''
-
-'''def button_select():
-    global LMODE
-    # We have a momentary switch that we want to increment each time it's pressed, and light up LED X.
-    if(LMODE<=0):
-	LMODE=1
-    elif(LMODE>=MAX_MODES):
-	LMODE=1
-    LMODE += 1
-    print('Setting launch mode to %s'%LMODE)
-    light_led(LMODE) 
-'''
-
-
 # This is an Event on push button.  It works well- but static can cause it to be pushed.
 GPIO.add_event_detect(BUTTON1, GPIO.FALLING, callback=my_callback_sel, bouncetime=200)
-# GPIO.add_event_detect(BUTTON2, GPIO.FALLING, callback=my_callback_fire, bouncetime=1000)
 
+# This is so we can track delay times - it's not really working.
 F_TIME=time.time()
 ready=1
+
+if __name__ == '__main__':
+    # This is for starting up... we need to call the function to get the global variable defined
+    increment_lmode()
 
 while True:
    global ready
