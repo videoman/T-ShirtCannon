@@ -6,8 +6,8 @@
 # Each output is triggered via a ULN2803 Darlington Driver
 TSHIRT1=4
 TSHIRT2=17
-TSHIRT3=18
-TSHIRT4=22
+TSHIRT3=22
+TSHIRT4=18
 
 # Define our LED outputs
 # LED status for each barrel

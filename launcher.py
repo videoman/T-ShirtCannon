@@ -14,7 +14,7 @@ from threading import Thread
 from launcher_pins import *
 
 # This file contains the camera functions.
-from camera_includes import *
+#from camera_includes import *
 
 # Setup our GPIO lines
 GPIO.setmode(GPIO.BCM)
@@ -61,7 +61,10 @@ def increment_lmode():
     return(LMODE)
 
 # Setup a t-shirt shooting function
-valve_sleep_time=.08
+
+# This is how long we hold open the solenoid
+# This build now uses Toro TPV100 Series Sprinkler Valves (175PSI with 1000PSI burst)
+valve_sleep_time=.1
 
 def fireshirt(TNUMBER):
     	global F_TIME 
@@ -73,7 +76,7 @@ def fireshirt(TNUMBER):
 		TSHIRTN=TSHIRT2
 		LEDN=LED2
 		# Valve 2 is a Rain Bird, and requires more time to bleed the air
-		valve_sleep_time=.18
+		# Updated valved to Toro TPV100 valve_sleep_time=.18
 	elif (TNUMBER==3):
 		TSHIRTN=TSHIRT3
 		LEDN=LED3
@@ -85,9 +88,9 @@ def fireshirt(TNUMBER):
 
 	if(ready==1): 
 		# Take a picture in a thread.
-		camera_t = Thread(target=take_pictures, args=(60,LMODE))
+		#camera_t = Thread(target=take_pictures, args=(80,LMODE))
 		#thread.start_new_thread(take_pictures(10))
-		camera_t.start()
+		#camera_t.start()
 
 		print "Turning on valve for", valve_sleep_time, "second using pin: ", TSHIRTN
 		blink_led(TNUMBER, 3, .1)
@@ -155,12 +158,12 @@ def blink_led(LED_NUM, REPS, DELAY):
 	
 	GPIO.output(LEDN, True)
 
-# These answer button pushes.
-def my_callback_sel(BUTTON1):
-	increment_lmode()
+# These answer button pushes. - But with so much static in the device, this doesn't work well.
+#def my_callback_sel(BUTTON1):
+#	increment_lmode()
 
 # This is an Event on push button.  It works well- but static can cause it to be pushed.
-GPIO.add_event_detect(BUTTON1, GPIO.FALLING, callback=my_callback_sel, bouncetime=200)
+#GPIO.add_event_detect(BUTTON1, GPIO.FALLING, callback=my_callback_sel, bouncetime=200)
 
 # This is so we can track delay times - it's not really working.
 F_TIME=time.time()
@@ -187,3 +190,9 @@ while True:
 			fireshirt(LMODE)
 			increment_lmode()
 			time.sleep(0.5)
+
+   if(GPIO.input(BUTTON1) == 0):
+      time.sleep(.005)
+      if(GPIO.input(BUTTON1) == 0):
+         increment_lmode()
+         time.sleep(1)
