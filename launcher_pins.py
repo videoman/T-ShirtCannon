@@ -26,3 +26,6 @@ BUTTON1=27
 # BUTTON2 is for firing a t-shirt
 BUTTON2=23
 
+# This is how long we hold open the solenoid
+# This build now uses Toro TPV100 Series Sprinkler Valves (175PSI with 1000PSI burst)
+valve_sleep_time=.12

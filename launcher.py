@@ -64,7 +64,7 @@ def increment_lmode():
 
 # This is how long we hold open the solenoid
 # This build now uses Toro TPV100 Series Sprinkler Valves (175PSI with 1000PSI burst)
-valve_sleep_time=.1
+#valve_sleep_time=.2
 
 def fireshirt(TNUMBER):
     	global F_TIME 
