@@ -28,4 +28,4 @@ BUTTON2=23
 
 # This is how long we hold open the solenoid
 # This build now uses Toro TPV100 Series Sprinkler Valves (175PSI with 1000PSI burst)
-valve_sleep_time=.12
+valve_sleep_time=.16

@@ -48,7 +48,7 @@ LMODE=0
 # This moves the barrel selection
 def increment_lmode():
     global LMODE
-    MAX_MODES=6
+    MAX_MODES=5
 
     # day after day, add it up!
     LMODE += 1
@@ -64,69 +64,50 @@ def increment_lmode():
 
 # This is how long we hold open the solenoid
 # This build now uses Toro TPV100 Series Sprinkler Valves (175PSI with 1000PSI burst)
-
-global valve_sleep_time
-def openvalve(TNUMBER, TSHIRTN, LEDN, valve_sleep_time):
-	# Take a picture in a thread.
-	#camera_t = Thread(target=take_pictures, args=(80,LMODE))
-	#thread.start_new_thread(take_pictures(10))
-	#camera_t.start()
-
-	print "Turning on valve for", valve_sleep_time, "second using pin: ", TSHIRTN
-	blink_led(TNUMBER, 3, .1)
-
-	# Turn on the Valve
-       	GPIO.output(TSHIRTN, True)
-       	time.sleep(valve_sleep_time)
-	#Turn off the valve
-       	GPIO.output(TSHIRTN, False)
-    	F_TIME=time.time()
-
-	blink_led(TNUMBER, 3, .2)
-	# Turn the LED off plz
-	GPIO.output(LEDN, False)
-
-def confetti_launch():
-	print "Launching confetti!!!"
-        blink_led(1, 3, .1)
-        blink_led(2, 3, .1)
-	GPIO.output(TSHIRT1, True)
-        time.sleep(.2)
-        GPIO.output(TSHIRT1, False)
-
-        time.sleep(1)
-	GPIO.output(TSHIRT2, True)
-        time.sleep(.2)
-        #Turn off the valve
-        GPIO.output(TSHIRT2, False)
-	print "Closing valves"
-        F_TIME=time.time()
-
-        blink_led(5, 3, .2)
-        # Turn the LED off plz
-        GPIO.output(LED5, False)
+#valve_sleep_time=.2
 
 def fireshirt(TNUMBER):
-	valve_sleep_time=.2
     	global F_TIME 
+	global valve_sleep_time
 	if (TNUMBER==1):
-		openvalve(TNUMBER, TSHIRT1, LED2, valve_sleep_time)
+		TSHIRTN=TSHIRT1
+		LEDN=LED1
 	elif (TNUMBER==2):
-		openvalve(TNUMBER, TSHIRT1, LED2, valve_sleep_time)
+		TSHIRTN=TSHIRT2
+		LEDN=LED2
+		# Valve 2 is a Rain Bird, and requires more time to bleed the air
+		# Updated valved to Toro TPV100 valve_sleep_time=.18
 	elif (TNUMBER==3):
-		openvalve(TNUMBER, TSHIRT1, LED2, valve_sleep_time)
+		TSHIRTN=TSHIRT3
+		LEDN=LED3
 	elif (TNUMBER==4):
-		openvalve(TNUMBER, TSHIRT1, LED2, valve_sleep_time)
-	elif (TNUMBER==5):
-		# We need to fire two tubes at once, and dump all the air.
-		confetti_launch()
+		TSHIRTN=TSHIRT4
+		LEDN=LED4
         else:
 		TSHIRTN=0
 
-	#if(ready==1): 
-	#else:
-	#	#print "Fire command requested for", THSIRTN, " but we're not ready..."
-	#	print('Fire button detected, but time out not yet passed: Firetime: {0} Pushtime: {1}'.format(F_TIME,time.time()))
+	if(ready==1): 
+		# Take a picture in a thread.
+		#camera_t = Thread(target=take_pictures, args=(80,LMODE))
+		#thread.start_new_thread(take_pictures(10))
+		#camera_t.start()
+
+		print "Turning on valve for", valve_sleep_time, "second using pin: ", TSHIRTN
+		blink_led(TNUMBER, 3, .1)
+
+		# Turn on the Valve
+        	GPIO.output(TSHIRTN, True)
+        	time.sleep(valve_sleep_time)
+		#Turn off the valve
+        	GPIO.output(TSHIRTN, False)
+    		F_TIME=time.time()
+
+		blink_led(TNUMBER, 3, .2)
+		# Turn the LED off plz
+		GPIO.output(LEDN, False)
+	else:
+		#print "Fire command requested for", THSIRTN, " but we're not ready..."
+		print('Fire button detected, but time out not yet passed: Firetime: {0} Pushtime: {1}'.format(F_TIME,time.time()))
 
 def light_led(LED_NUM):
 	if(LED_NUM==1):
@@ -135,36 +116,27 @@ def light_led(LED_NUM):
 		GPIO.output(LED2, False)	
 		GPIO.output(LED3, False)	
 		GPIO.output(LED4, False)	
-		GPIO.output(LED5, False)	
 	if(LED_NUM==2):
 		print('Turning on LED PIN: %s'%LED2)
 		GPIO.output(LED1, False)	
 		GPIO.output(LED2, True)	
 		GPIO.output(LED3, False)	
 		GPIO.output(LED4, False)	
-		GPIO.output(LED5, False)	
 	if(LED_NUM==3):
 		print('Turning on LED PIN: %s'%LED3)
 		GPIO.output(LED1, False)	
 		GPIO.output(LED2, False)	
 		GPIO.output(LED3, True)	
 		GPIO.output(LED4, False)	
-		GPIO.output(LED5, False)	
 	if(LED_NUM==4):
 		print('Turning on LED PIN: %s'%LED4)
 		GPIO.output(LED1, False)	
 		GPIO.output(LED2, False)	
 		GPIO.output(LED3, False)	
 		GPIO.output(LED4, True)	
-		GPIO.output(LED5, False)	
 	if(LED_NUM==5):
 		print('Turning on LED PIN: %s'%LED5)
-		GPIO.output(LED1, True)	
-		GPIO.output(LED2, True)	
-		GPIO.output(LED3, True)	
-		GPIO.output(LED4, True)	
 		GPIO.output(LED5, True)	
-		
 
 def blink_led(LED_NUM, REPS, DELAY):
 	if(LED_NUM==1):
