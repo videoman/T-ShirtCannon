@@ -48,7 +48,7 @@ LMODE=0
 # This moves the barrel selection
 def increment_lmode():
     global LMODE
-    MAX_MODES=7
+    MAX_MODES=5
 
     # day after day, add it up!
     LMODE += 1
@@ -241,17 +241,32 @@ while True:
 
    # Wait to see if the Fire button is being held down... 
    if(GPIO.input(BUTTON2) == 0):
-	  time.sleep(.25)
+	  time.sleep(.10)
 	  if(GPIO.input(BUTTON2) == 0):
-	 	time.sleep(.25)
+	 	time.sleep(.10)
 		if(GPIO.input(BUTTON2) == 0):
 			#my_callback_fire
 			fireshirt(LMODE)
-			increment_lmode()
 			time.sleep(0.5)
+                        if(LMODE==5):
+		           LMODE=6
+		           light_led(LMODE)
+		           time.sleep(1)
+			else:
+			   increment_lmode()
+
 
    if(GPIO.input(BUTTON1) == 0):
-      time.sleep(.005)
+      time.sleep(.1)
       if(GPIO.input(BUTTON1) == 0):
          increment_lmode()
-         time.sleep(1)
+         time.sleep(.75)
+         if(GPIO.input(BUTTON1) == 0):
+            time.sleep(1)
+            if(GPIO.input(BUTTON1) == 0):
+               time.sleep(2.5)
+               if(GPIO.input(BUTTON1) == 0):
+		  if(LMODE<=4):
+		     LMODE=5	
+                     light_led(LMODE)
+                     time.sleep(2)
