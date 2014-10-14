@@ -48,7 +48,7 @@ LMODE=0
 # This moves the barrel selection
 def increment_lmode():
     global LMODE
-    MAX_MODES=6
+    MAX_MODES=7
 
     # day after day, add it up!
     LMODE += 1
@@ -87,19 +87,40 @@ def openvalve(TNUMBER, TSHIRTN, LEDN, valve_sleep_time):
 	GPIO.output(LEDN, False)
 
 def confetti_launch():
+	#confetti_sleep=.16
 	print "Launching confetti!!!"
-        blink_led(1, 3, .1)
-        blink_led(2, 3, .1)
+        blink_led(1, 2, .1)
+        blink_led(2, 2, .1)
 	GPIO.output(TSHIRT1, True)
-        time.sleep(.2)
+        time.sleep(.16)
         GPIO.output(TSHIRT1, False)
 
         time.sleep(1)
 	GPIO.output(TSHIRT2, True)
-        time.sleep(.2)
+        time.sleep(.16)
         #Turn off the valve
         GPIO.output(TSHIRT2, False)
 	print "Closing valves"
+        F_TIME=time.time()
+
+        blink_led(5, 3, .2)
+        # Turn the LED off plz
+        GPIO.output(LED5, False)
+
+def confetti_launch2():
+        print "Launching confetti!!!"
+        blink_led(3, 2, .1)
+        blink_led(4, 2, .1)
+        GPIO.output(TSHIRT3, True)
+        time.sleep(.16)
+        GPIO.output(TSHIRT3, False)
+
+        time.sleep(1)
+        GPIO.output(TSHIRT4, True)
+        time.sleep(.16)
+        #Turn off the valve
+        GPIO.output(TSHIRT4, False)
+        print "Closing valves"
         F_TIME=time.time()
 
         blink_led(5, 3, .2)
@@ -112,14 +133,17 @@ def fireshirt(TNUMBER):
 	if (TNUMBER==1):
 		openvalve(TNUMBER, TSHIRT1, LED2, valve_sleep_time)
 	elif (TNUMBER==2):
-		openvalve(TNUMBER, TSHIRT1, LED2, valve_sleep_time)
+		openvalve(TNUMBER, TSHIRT2, LED2, valve_sleep_time)
 	elif (TNUMBER==3):
-		openvalve(TNUMBER, TSHIRT1, LED2, valve_sleep_time)
+		openvalve(TNUMBER, TSHIRT3, LED2, valve_sleep_time)
 	elif (TNUMBER==4):
-		openvalve(TNUMBER, TSHIRT1, LED2, valve_sleep_time)
+		openvalve(TNUMBER, TSHIRT4, LED2, valve_sleep_time)
 	elif (TNUMBER==5):
 		# We need to fire two tubes at once, and dump all the air.
 		confetti_launch()
+	elif (TNUMBER==6):
+		# We need to fire two tubes at once, and dump all the air.
+		confetti_launch2()
         else:
 		TSHIRTN=0
 
@@ -161,6 +185,13 @@ def light_led(LED_NUM):
 		print('Turning on LED PIN: %s'%LED5)
 		GPIO.output(LED1, True)	
 		GPIO.output(LED2, True)	
+		GPIO.output(LED3, False)	
+		GPIO.output(LED4, False)	
+		GPIO.output(LED5, True)	
+	if(LED_NUM==6):
+		print('Turning on LED PIN: %s'%LED5)
+		GPIO.output(LED1, False)	
+		GPIO.output(LED2, False)	
 		GPIO.output(LED3, True)	
 		GPIO.output(LED4, True)	
 		GPIO.output(LED5, True)	
