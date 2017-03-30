@@ -128,7 +128,7 @@ def confetti_launch2():
         GPIO.output(LED5, False)
 
 def fireshirt(TNUMBER):
-	valve_sleep_time=.2
+	valve_sleep_time=.1
     	global F_TIME 
 	if (TNUMBER==1):
 		openvalve(TNUMBER, TSHIRT1, LED2, valve_sleep_time)
